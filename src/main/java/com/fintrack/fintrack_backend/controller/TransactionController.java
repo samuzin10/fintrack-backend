@@ -18,7 +18,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping
+    @PostMapping("/user/{userId}")
     public Transaction createTransaction(@RequestBody Transaction transaction, @PathVariable Long userId) {
         return transactionService.createTransaction(transaction, userId);
     }
@@ -44,12 +44,12 @@ public class TransactionController {
         return transactionService.getTransactionsByUser(userId);
     }
 
-    @GetMapping("/transactions/dashboard/{userId}")
+    @GetMapping("dashboard/{userId}")
     public DashboardResponse getDashboard(@PathVariable Long userId){
         return transactionService.getDashboard(userId);
     }
 
-    @GetMapping("/transactions/category-summary/{userId}")
+    @GetMapping("/category-summary/{userId}")
     public List<CategorySummaryResponse> getExpenseSummary(@PathVariable Long userId) {
         return transactionService.getExpenseSummary(userId);
     }

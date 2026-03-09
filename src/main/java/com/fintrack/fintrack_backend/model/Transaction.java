@@ -2,6 +2,7 @@ package com.fintrack.fintrack_backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Transaction {
@@ -21,6 +22,7 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     public Long getId() {

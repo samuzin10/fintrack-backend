@@ -7,6 +7,7 @@ import com.fintrack.fintrack_backend.model.User;
 import com.fintrack.fintrack_backend.dto.CategorySummaryResponse;
 import com.fintrack.fintrack_backend.dto.DashboardResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class TransactionService {
         this.userRepository = userRepository;
     }
 
-    public Transaction createTransaction(Transaction transaction, Long userId){
+    public Transaction createTransaction(Transaction transaction, @NonNull Long userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         transaction.setUser(user);
         return transactionRepository.save(transaction);
@@ -31,11 +32,11 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
-    public void deleteTransaction(Long id){
+    public void deleteTransaction(@NonNull Long id){
         transactionRepository.deleteById(id);
     }
 
-    public Transaction updateTransaction(Long id, Transaction updateTransaction){
+    public Transaction updateTransaction(@NonNull Long id, Transaction updateTransaction){
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found"));
 
         transaction.setDescription(updateTransaction.getDescription());
@@ -51,25 +52,27 @@ public class TransactionService {
     }
 
     public DashboardResponse getDashboard(Long userId){
-        Double income = transactionRepository.sumIncomeByUser(userId);
-        Double expense = transactionRepository.sumExpenseByUser(userId);
-        Double balance = (income != null ? income : 0) - (expense != null ? expense : 0);
-        return new DashboardResponse(balance, income != null ? income : 0, expense != null ? expense : 0);
+        List<Transaction> transactions = transactionRepository.findByUserId(userId);
+
+        double totalIncome = 0;
+        double totalExpense = 0;
+
+        for(Transaction t : transactions){
+            if ("income".equalsIgnoreCase(t.getType())){
+                totalIncome += t.getAmount();
+            }
+            if ("expense".equalsIgnoreCase(t.getType())){
+                totalExpense += t.getAmount();
+            }
+        }
+
+        double balance = totalIncome - totalExpense;
+
+        return new DashboardResponse(balance, totalIncome, totalExpense);
     }
 
 public List<CategorySummaryResponse> getExpenseSummary(Long userId) {
 
-    List<Object[]> results = transactionRepository.findExpenseSummaryByUser(userId);
-
-    List<CategorySummaryResponse> response = new ArrayList<>();
-
-    for (Object[] row : results) {
-        String category = (String) row[0];
-        Double total = (Double) row[1];
-
-        response.add(new CategorySummaryResponse(category, total));
-    }
-
-    return response;
+    return transactionRepository.getExpenseSummaryByUser(userId);
 }
 }
