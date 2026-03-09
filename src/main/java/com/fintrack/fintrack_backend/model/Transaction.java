@@ -15,6 +15,8 @@ public class Transaction {
 
     private String category;
 
+    private String type;
+
     private LocalDate date;
 
     @ManyToOne
@@ -51,6 +53,14 @@ public class Transaction {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public LocalDate getDate() {

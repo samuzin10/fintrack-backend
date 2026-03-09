@@ -26,7 +26,7 @@ public class TransactionService {
         transaction.setUser(user);
         return transactionRepository.save(transaction);
     }
-
+    
     public List<Transaction> getAllTransactions(){
         return transactionRepository.findAll();
     }
