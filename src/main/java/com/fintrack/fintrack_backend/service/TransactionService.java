@@ -4,8 +4,11 @@ import com.fintrack.fintrack_backend.model.Transaction;
 import com.fintrack.fintrack_backend.repository.TransactionRepository;
 import com.fintrack.fintrack_backend.repository.UserRepository;
 import com.fintrack.fintrack_backend.model.User;
+import com.fintrack.fintrack_backend.dto.CategorySummaryResponse;
+import com.fintrack.fintrack_backend.dto.DashboardResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 
@@ -46,4 +49,27 @@ public class TransactionService {
     public List<Transaction> getTransactionsByUser(Long userId) {
         return transactionRepository.findByUserId(userId);
     }
+
+    public DashboardResponse getDashboard(Long userId){
+        Double income = transactionRepository.sumIncomeByUser(userId);
+        Double expense = transactionRepository.sumExpenseByUser(userId);
+        Double balance = (income != null ? income : 0) - (expense != null ? expense : 0);
+        return new DashboardResponse(balance, income != null ? income : 0, expense != null ? expense : 0);
+    }
+
+public List<CategorySummaryResponse> getExpenseSummary(Long userId) {
+
+    List<Object[]> results = transactionRepository.findExpenseSummaryByUser(userId);
+
+    List<CategorySummaryResponse> response = new ArrayList<>();
+
+    for (Object[] row : results) {
+        String category = (String) row[0];
+        Double total = (Double) row[1];
+
+        response.add(new CategorySummaryResponse(category, total));
+    }
+
+    return response;
+}
 }
