@@ -5,7 +5,10 @@ import com.fintrack.fintrack_backend.repository.TransactionRepository;
 import com.fintrack.fintrack_backend.repository.UserRepository;
 import com.fintrack.fintrack_backend.model.User;
 import com.fintrack.fintrack_backend.dto.CategorySummaryResponse;
+import com.fintrack.fintrack_backend.dto.CreateTransactionDTO;
 import com.fintrack.fintrack_backend.dto.DashboardResponse;
+import com.fintrack.fintrack_backend.dto.TransactionResponseDTO;
+
 import org.springframework.stereotype.Service;
 import org.springframework.lang.NonNull;
 
@@ -22,14 +25,41 @@ public class TransactionService {
         this.userRepository = userRepository;
     }
 
-    public Transaction createTransaction(Transaction transaction, @NonNull Long userId){
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        transaction.setUser(user);
-        return transactionRepository.save(transaction);
-    }
+        public Transaction createTransaction(CreateTransactionDTO dto, @NonNull Long userId){
+
+            Transaction transaction = new Transaction();
+            transaction.setDescription(dto.getDescription());
+            transaction.setAmount(dto.getAmount());
+            transaction.setCategory(dto.getCategory());
+            transaction.setType(dto.getType());
+            transaction.setDate(dto.getDate());
+
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            transaction.setUser(user);
+            return transactionRepository.save(transaction);
+        }
     
-    public List<Transaction> getAllTransactions(){
-        return transactionRepository.findAll();
+    
+
+    public List<TransactionResponseDTO> getAllTransactions(){
+
+        List<Transaction> transactions = transactionRepository.findAll();
+        
+        List<TransactionResponseDTO> response = new ArrayList<>();
+        
+        for (Transaction t : transactions){
+        TransactionResponseDTO dto = new TransactionResponseDTO(
+            
+            t.getId(),
+            t.getDescription(),
+            t.getAmount(),
+            t.getCategory(),
+            t.getType(),
+            t.getDate()
+        );
+            response.add(dto);
+        }
+        return response;
     }
 
     public void deleteTransaction(@NonNull Long id){

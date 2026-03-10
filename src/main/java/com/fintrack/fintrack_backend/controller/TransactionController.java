@@ -3,7 +3,11 @@ package com.fintrack.fintrack_backend.controller;
 import com.fintrack.fintrack_backend.model.Transaction;
 import com.fintrack.fintrack_backend.service.TransactionService;
 import com.fintrack.fintrack_backend.dto.CategorySummaryResponse;
+import com.fintrack.fintrack_backend.dto.CreateTransactionDTO;
 import com.fintrack.fintrack_backend.dto.DashboardResponse;
+import com.fintrack.fintrack_backend.dto.TransactionResponseDTO;
+
+import jakarta.validation.Valid;    
 
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +23,12 @@ public class TransactionController {
     }
 
     @PostMapping("/user/{userId}")
-    public Transaction createTransaction(@RequestBody Transaction transaction, @PathVariable Long userId) {
-        return transactionService.createTransaction(transaction, userId);
+    public Transaction createTransaction(@RequestBody @Valid CreateTransactionDTO dto, @PathVariable Long userId) {
+        return transactionService.createTransaction(dto, userId);
     }
 
     @GetMapping
-    public List<Transaction> getAllTransactions() {
+    public List<TransactionResponseDTO> getAllTransactions() {
         return transactionService.getAllTransactions();
     }
 
@@ -35,8 +39,7 @@ public class TransactionController {
 
     @PutMapping("/{id}")
     public Transaction updateTransaction(@PathVariable Long id, @RequestBody Transaction transaction) {
-        transaction.setId(id);
-        return transactionService.createTransaction(transaction, transaction.getUser().getId());
+        return transactionService.updateTransaction(id, transaction);
     }
 
     @GetMapping("/user/{userId}")
