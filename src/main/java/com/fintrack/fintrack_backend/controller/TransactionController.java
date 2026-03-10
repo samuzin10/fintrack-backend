@@ -6,6 +6,8 @@ import com.fintrack.fintrack_backend.dto.CategorySummaryResponse;
 import com.fintrack.fintrack_backend.dto.CreateTransactionDTO;
 import com.fintrack.fintrack_backend.dto.DashboardResponse;
 import com.fintrack.fintrack_backend.dto.TransactionResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import jakarta.validation.Valid;    
 
@@ -25,11 +27,6 @@ public class TransactionController {
     @PostMapping("/user/{userId}")
     public Transaction createTransaction(@RequestBody @Valid CreateTransactionDTO dto, @PathVariable Long userId) {
         return transactionService.createTransaction(dto, userId);
-    }
-
-    @GetMapping
-    public List<TransactionResponseDTO> getAllTransactions() {
-        return transactionService.getAllTransactions();
     }
 
     @DeleteMapping("/{id}")
@@ -56,5 +53,13 @@ public class TransactionController {
     public List<CategorySummaryResponse> getExpenseSummary(@PathVariable Long userId) {
         return transactionService.getExpenseSummary(userId);
     }
+
+    @GetMapping
+    public Page<TransactionResponseDTO> listTransactions(
+        @RequestParam Long userId,
+        Pageable pageable){
+
+            return transactionService.listTransactions(userId, pageable);
+        }
     }
 

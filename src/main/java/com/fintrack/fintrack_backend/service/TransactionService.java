@@ -8,6 +8,10 @@ import com.fintrack.fintrack_backend.dto.CategorySummaryResponse;
 import com.fintrack.fintrack_backend.dto.CreateTransactionDTO;
 import com.fintrack.fintrack_backend.dto.DashboardResponse;
 import com.fintrack.fintrack_backend.dto.TransactionResponseDTO;
+import com.fintrack.fintrack_backend.exception.ResourceNotFoundException;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.lang.NonNull;
@@ -34,7 +38,7 @@ public class TransactionService {
             transaction.setType(dto.getType());
             transaction.setDate(dto.getDate());
 
-            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
             transaction.setUser(user);
             return transactionRepository.save(transaction);
         }
@@ -67,7 +71,7 @@ public class TransactionService {
     }
 
     public Transaction updateTransaction(@NonNull Long id, Transaction updateTransaction){
-        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found"));
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
         transaction.setDescription(updateTransaction.getDescription());
         transaction.setAmount(updateTransaction.getAmount());
@@ -101,8 +105,22 @@ public class TransactionService {
         return new DashboardResponse(balance, totalIncome, totalExpense);
     }
 
-public List<CategorySummaryResponse> getExpenseSummary(Long userId) {
+    public List<CategorySummaryResponse> getExpenseSummary(Long userId) {
 
-    return transactionRepository.getExpenseSummaryByUser(userId);
+        return transactionRepository.getExpenseSummaryByUser(userId);
+    }
+
+    public Page<TransactionResponseDTO> listTransactions(Long userId, Pageable pageable){
+
+        return transactionRepository
+                .findByUserId(userId, pageable)
+                .map(t -> new TransactionResponseDTO(
+                        t.getId(),
+                        t.getDescription(),
+                        t.getAmount(),
+                        t.getCategory(),
+                        t.getType(),
+                        t.getDate()
+                ));
 }
 }
