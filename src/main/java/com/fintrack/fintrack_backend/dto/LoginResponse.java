@@ -1,7 +1,5 @@
 package com.fintrack.fintrack_backend.dto;
 
-import io.swagger.v3.oas.annotations.Operation;
-
 public class LoginResponse {
     private Long userId;
     private String name;
